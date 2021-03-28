@@ -1,0 +1,24 @@
+#!/usr/bin/env python3
+import sys
+import subprocess
+
+out_file_name = "wpa_supplicant.conf"
+needed_lines = "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\n"
+
+def main():
+    if len(sys.argv) == 3:
+        ssid = sys.argv[1]
+        passkey = sys.argv[2]
+    else:
+        ssid = input("Please enter your Wifi Network SSID > ")
+        passkey = input("Please enter your Wifi Network Passkey > ")
+
+    command = ["wpa_passphrase", ssid, passkey]
+    network = subprocess.check_output(command)
+    
+    with open(out_file_name, "w") as f:
+        f.write(needed_lines)
+        f.write(str(network, 'utf-8'))
+
+if __name__ == "__main__":
+    main()
