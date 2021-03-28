@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
 import sys
-import subprocess
 
 out_file_name = "wpa_supplicant.conf"
-needed_lines = "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\n"
 
 def main():
-    if len(sys.argv) == 3:
+    if len(sys.argv) == 4:
         ssid = sys.argv[1]
         passkey = sys.argv[2]
+        country = sys.argv[3]
     else:
         ssid = input("Please enter your Wifi Network SSID > ")
         passkey = input("Please enter your Wifi Network Passkey > ")
+        country = input("Please enter 2 digit country that you are in > ")
 
-    command = ["wpa_passphrase", ssid, passkey]
-    network = subprocess.check_output(command)
+    if country == "":
+        country = "US"
+
+    needed_lines = "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\ncountry=%s\n" % country
+    network = 'network={\n\tssid=\"%s\"\n\tpsk=\"%s\"\n}' % (ssid, passkey)
     
     with open(out_file_name, "w") as f:
         f.write(needed_lines)
-        f.write(str(network, 'utf-8'))
+        f.write(network)
+
+    print("Completed Generating File!")
 
 if __name__ == "__main__":
     main()
