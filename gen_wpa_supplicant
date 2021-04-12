@@ -10,15 +10,13 @@ out_file_name = "wpa_supplicant.conf"
 
 def main():
     ssid = input("Please enter your Wifi Network SSID > ")
-    passkey = input("\nIf unencrypted wifi, press ENTER\n\
-        Please enter your Wifi Network Passkey > ")
-    country = input("\nPlease use ISO 3166-1 country codes\n\
-        Please enter 2 digit country that you are in > ")
+    passkey = input("\nIf unencrypted wifi, press ENTER\nPlease enter your Wifi Network Passkey > ")
+    country = input("\nPlease use ISO 3166-1 country codes\nPlease enter 2 digit country that you are in > ")
     hidden = input("\nIs your network hidden? > ")
 
     network = []
 
-    network.append("ssid=\"%s\"" % ssid)
+    network.append("ssid=\"%s\"" % ssid.strip())
 
     # Evaluates if country is added; if not then US is default
     if country == "":
@@ -38,8 +36,7 @@ def main():
         if hidden.lower() == 'y':
             network.append("scan_ssid=1")
 
-    needed_lines = "ctrl_interface=DIR=/var/run/wpa_supplicant\
-         GROUP=netdev\nupdate_config=1\n%s\n" % myCountry
+    needed_lines = "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\n%s\n" % myCountry
     
     with open(out_file_name, "w") as f:
         f.write(needed_lines)
