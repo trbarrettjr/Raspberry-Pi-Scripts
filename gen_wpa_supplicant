@@ -1,27 +1,52 @@
 #!/usr/bin/env python3
-import sys
+
+"""
+Used to generate wpa_supplicant.conf file for raspberry pi for headless use.
+
+Intended to be utilized as a client from a non-raspberry pi system.
+"""
 
 out_file_name = "wpa_supplicant.conf"
 
 def main():
-    if len(sys.argv) == 4:
-        ssid = sys.argv[1]
-        passkey = sys.argv[2]
-        country = sys.argv[3]
-    else:
-        ssid = input("Please enter your Wifi Network SSID > ")
-        passkey = input("Please enter your Wifi Network Passkey > ")
-        country = input("Please enter 2 digit country that you are in > ")
+    ssid = input("Please enter your Wifi Network SSID > ")
+    passkey = input("\nIf unencrypted wifi, press ENTER\n\
+        Please enter your Wifi Network Passkey > ")
+    country = input("\nPlease use ISO 3166-1 country codes\n\
+        Please enter 2 digit country that you are in > ")
+    hidden = input("\nIs your network hidden? > ")
 
+    network = []
+
+    network.append("ssid=\"%s\"" % ssid)
+
+    # Evaluates if country is added; if not then US is default
     if country == "":
-        country = "US"
+        myCountry = 'country=US'
+    else:
+        myCountry = 'country=%s' % country.upper()
+    
+    # Evaluates if passkey is added; if not then key_mgmt=NONE is default
+    if passkey == "":
+        network.append("key_mgmt=NONE")
+    else:
+        network.append("psk=\"%s\"" % passkey.strip())
 
-    needed_lines = "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\ncountry=%s\n" % country
-    network = 'network={\n\tssid=\"%s\"\n\tpsk=\"%s\"\n}' % (ssid, passkey)
+    hiddenOptions = ['yes', 'y', 'no', 'n', None]
+
+    if hidden.lower() in hiddenOptions:
+        if hidden.lower() == 'y':
+            network.append("scan_ssid=1")
+
+    needed_lines = "ctrl_interface=DIR=/var/run/wpa_supplicant\
+         GROUP=netdev\nupdate_config=1\n%s\n" % myCountry
     
     with open(out_file_name, "w") as f:
         f.write(needed_lines)
-        f.write(network)
+        f.write("network={\n")
+        for item in network:
+            f.write('    %s\n' % item)
+        f.write('}')
 
     print("Completed Generating File!")
 
