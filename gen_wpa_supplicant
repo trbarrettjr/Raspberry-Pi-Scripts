@@ -4,6 +4,8 @@
 Used to generate wpa_supplicant.conf file for raspberry pi for headless use.
 
 Intended to be utilized as a client from a non-raspberry pi system.
+During the setup.  Place the wpa_supplicant.conf in the boot folder
+as per the instruction at https://www.raspberrypi.org/documentation/configuration/boot_folder.md
 """
 
 out_file_name = "wpa_supplicant.conf"
@@ -30,12 +32,15 @@ def main():
     else:
         network.append("psk=\"%s\"" % passkey.strip())
 
-    hiddenOptions = ['yes', 'y', 'no', 'n', None]
+    hiddenOptions = ['yes', 'ye', 'y', 'no', 'n', None]
 
     if hidden.lower() in hiddenOptions:
         if hidden.lower() == 'y':
             network.append("scan_ssid=1")
-
+    else:
+        print("Not a valid option")
+        main()
+        
     needed_lines = "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\n%s\n" % myCountry
     
     with open(out_file_name, "w") as f:
